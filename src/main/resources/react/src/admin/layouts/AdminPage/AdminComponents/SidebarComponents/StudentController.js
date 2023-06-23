@@ -539,7 +539,7 @@ export const StudentController = () => {
           <div className="form-group mt-1">
             <label>Password</label>
             <input
-              type="text"
+              type="password"
               name="password"
               value={student.password}
               onChange={handleInputChange}

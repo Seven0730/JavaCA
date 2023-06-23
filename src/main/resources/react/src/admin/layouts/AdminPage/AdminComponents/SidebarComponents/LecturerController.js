@@ -325,6 +325,7 @@ export const LecturerController = () => {
   const [showMessage, setShowMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+
   useEffect(() => {
     fetchStudents();
 
@@ -416,6 +417,12 @@ export const LecturerController = () => {
     }
   };
 
+  function deleteConfirmation(studentId) {
+    const result = window.confirm("Are you sure you want to delete this student?");
+    if (result) {
+      deleteStudent(studentId);
+    }
+  }
   const showNotice = (msg) => {
     setShowMessage(msg);
     setTimeout(() => {
@@ -515,7 +522,7 @@ export const LecturerController = () => {
           <div className="form-group mt-1">
             <label>Password</label>
             <input
-              type="text"
+              type="password"
               name="password"
               value={student.password}
               onChange={handleInputChange}
@@ -580,9 +587,7 @@ export const LecturerController = () => {
                   <button onClick={() => editStudent(student)}>Edit</button>
                 </td>
                 <td>
-                  <button onClick={() => deleteStudent(student.id)}>
-                    Delete
-                  </button>
+                  <button onClick={() => deleteConfirmation(student.id)}>Delete</button>
                 </td>
               </tr>
             ))}

@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from "react-router-dom";
 
 export const Navbar = () => {
   return (
@@ -61,13 +62,14 @@ export const Navbar = () => {
         className="fw-bold fs-5 text-primary me-3"
         style={{ marginRight: "30px" }}
       ></span>
-      <a
+      <Link
         className="btn btn-sm btn-danger me-2"
         href="/logout"
         style={{ marginRight: "15px" }}
+        to="http://localhost:8888/"
       >
         Logout
-      </a>
+      </Link>
     </div>
   );
 };

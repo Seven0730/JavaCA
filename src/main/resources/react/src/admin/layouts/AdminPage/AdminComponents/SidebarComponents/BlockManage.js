@@ -5,10 +5,10 @@ const initialFormState = {
   studentName: "",
   courseName: "",
   id: "",
-  reject: "",
+  reject: [],
 };
+
 export const BlockManage = () => {
-  //const [students, setStudents] = useState([]);
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
@@ -31,48 +31,56 @@ export const BlockManage = () => {
       console.error(error);
     }
   };
-  const handleConfirm = async (id) => {
+
+  const handleConfirm = async (id, studentName) => {
     try {
-      await axios.put(`/admin/block/${id}`);
+      const data = {
+        lecturer: studentName,
+        courseId: id,
+      };
+      const response = await axios.put("/admin/block/sendemail", data);
+      console.log(response.data);
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <div>
-      <h1>Blocked Students</h1>
-      <table className="table">
-        <thead>
+      <div>
+        <h1>Blocked Students</h1>
+        <table className="table">
+          <thead>
           <tr>
             <th>Student Name</th>
             <th>Course Name</th>
             <th>Action</th>
           </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
           {students.map((student) => (
-            <tr key={student.id}>
-              <td>{student.studentName}</td>
-              <td>{student.courseName}</td>
-              <td>
-                <button
-                    onClick={() => handleConfirm(student.id)}
-                    className="btn btn-outline-primary"
-                >
-                  confirm
-                </button>
-                <button
-                  onClick={() => handleReject(student.id)}
-                  className="btn btn-outline-danger"
-                >
-                  Reject
-                </button>
-              </td>
-            </tr>
+              <tr key={student.id}>
+                <td>{student.studentName}</td>
+                <td>{student.courseName}</td>
+                <td>
+                  <button
+                      onClick={() =>
+                          handleConfirm(student.id, [student.studentName])
+                      }
+                      className="btn btn-outline-primary"
+                  >
+                    confirm
+                  </button>
+                  <button
+                      onClick={() => handleReject(student.id)}
+                      className="btn btn-outline-danger"
+                  >
+                    Reject
+                  </button>
+                </td>
+              </tr>
           ))}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
   );
 };

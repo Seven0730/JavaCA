@@ -14,8 +14,8 @@ const initialFormState = {
   collage: {
     id: "",
     name: "",
-    studentList: "",
-    courseList: ""
+    studentList: [],
+    courseList: []
   },
   startingtime: "",
   endingtime: "",
@@ -28,6 +28,8 @@ export const CourseController = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showMessage, setShowMessage] = useState("");
+  const [isAddLecturerModalOpen, setIsAddLecturerModalOpen] = useState(false);
+  const [studentNames, setStudentNames] = useState(""); // 学生姓名
 
   useEffect(() => {
     fetchCourses();
@@ -42,6 +44,18 @@ export const CourseController = () => {
     setIsModalOpen(false);
   };
 
+  const openAddLecturerModal = () => {
+    setIsAddLecturerModalOpen(true);
+  };
+
+  const closeAddLecturerModal = () => {
+    setIsAddLecturerModalOpen(false);
+  };
+
+  const clearAddLecturerModal = () => {
+    setIsAddLecturerModalOpen(true);
+  };
+
   const fetchCourses = async () => {
     try {
       const response = await axios.get("/admin/course");
@@ -52,10 +66,11 @@ export const CourseController = () => {
     }
   };
 
-  const addlecturer = async (newLecture) => {
+  const addLecturer = async (newLecturer) => {
     try {
-      const response = await axios.post("/admin/course", newLecture);
-      showNotice("You have deleted this lecturer successfully!");
+      newLecturer.courseId = course.id;
+      const response = await axios.post(`/admin/course//addlec`, newLecturer);
+      // 执行成功后的操作
     } catch (error) {
       console.error(error);
     }
@@ -68,7 +83,7 @@ export const CourseController = () => {
           prevCourses.map((course) => (course.id === response.data.id ? response.data : course))
       );
       setCourse(initialFormState);
-      showNotice("Great! You have add the list successfully!");
+      showNotice("Great! You have added the course successfully!");
     } catch (error) {
       console.error(error);
     }
@@ -78,7 +93,7 @@ export const CourseController = () => {
     try {
       await axios.delete(`/admin/course/${id}`);
       setCourses((prevCourses) => prevCourses.filter((course) => course.id !== id));
-      showNotice("You have deleted this lecturer successfully!");
+      showNotice("You have deleted the course successfully!");
     } catch (error) {
       console.error(error);
     }
@@ -86,12 +101,12 @@ export const CourseController = () => {
 
   const updateCourse = async (updatedCourse) => {
     try {
-      const response = await axios.put("/admin/course", updatedCourse);
+      const response = await axios.put(`/admin/course/${updatedCourse.id}`, updatedCourse);
       setCourses((prevCourses) =>
           prevCourses.map((course) => (course.id === response.data.id ? response.data : course))
       );
       setCourse(initialFormState);
-      showNotice("Great! You have updated the list successfully!");
+      showNotice("Great! You have updated the course successfully!");
     } catch (error) {
       console.error(error);
     }
@@ -136,6 +151,17 @@ export const CourseController = () => {
     openModal();
     setCourse(selectedCourse);
   };
+  const editLecturer = (selectedCourse) => {
+    openAddLecturerModal();
+    setCourse(selectedCourse);
+  };
+
+  const addLecturerToCourse = (e) => {
+    e.preventDefault();
+    const lecturer = studentNames.split('\n').map(name => name.trim());
+    const newLecturer = { lecturer: lecturer };
+    addLecturer(newLecturer);
+  };
 
   return (
       <div>
@@ -144,6 +170,27 @@ export const CourseController = () => {
           Add Course
         </button>
         {showMessage && <p>{showMessage}</p>}
+
+        <Modal
+            isOpen={isAddLecturerModalOpen}
+            onRequestClose={clearAddLecturerModal}
+            contentLabel="Add Lecturer"
+            className="modal-dialog modal-lg"
+        >
+          <h2>Course Lecturer(s)</h2>
+          {showMessage && <p>{showMessage}</p>}
+          <form onSubmit={addLecturerToCourse}>
+            <div>
+              <label>Lecturer Name(s):</label>
+              <textarea
+                  rows={5}
+                  value={studentNames}
+                  onChange={(e) => setStudentNames(e.target.value)}
+              />
+            </div>
+            <SaveAndCancelButton closeModal={closeAddLecturerModal} />
+          </form>
+        </Modal>s
 
         <Modal
             isOpen={isModalOpen}
@@ -216,13 +263,16 @@ export const CourseController = () => {
             </div>
             <div className="form-group mt-1">
               <label>Course Date:</label>
+              <div className="password-container">
               <input
                   type="text"
                   name="date"
                   value={course.date}
                   onChange={handleInputChange}
-                  className="form-control"
+                  className="form-control password-input"
               />
+                <i className="toggle-password fas fa-eye"></i>
+              </div>
             </div>
             <div className="form-group mt-2">
               <label>Course Compulsory:</label>
@@ -269,7 +319,7 @@ export const CourseController = () => {
                     <td>{course.date}</td>
                     <td>{course.compulsory ? "Yes" : "No"}</td>
                     <td>
-                      <button onClick={() => addlecturer(course.id)}>AddLecturer</button>
+                      <button onClick={() => editLecturer(course)}>AddLecturer</button>
                     </td>
                     <td>
                       <button onClick={() => editCourse(course)}>Edit</button>
