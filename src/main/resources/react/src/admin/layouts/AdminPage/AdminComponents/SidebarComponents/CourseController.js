@@ -69,7 +69,7 @@ export const CourseController = () => {
   const addLecturer = async (newLecturer) => {
     try {
       newLecturer.courseId = course.id;
-      const response = await axios.post(`/admin/course//addlec`, newLecturer);
+      const response = await axios.post("/admin/course//addlec", newLecturer);
       // 执行成功后的操作
     } catch (error) {
       console.error(error);
@@ -101,7 +101,7 @@ export const CourseController = () => {
 
   const updateCourse = async (updatedCourse) => {
     try {
-      const response = await axios.put(`/admin/course/${updatedCourse.id}`, updatedCourse);
+      const response = await axios.put("/admin/course", updatedCourse);
       setCourses((prevCourses) =>
           prevCourses.map((course) => (course.id === response.data.id ? response.data : course))
       );
@@ -190,7 +190,7 @@ export const CourseController = () => {
             </div>
             <SaveAndCancelButton closeModal={closeAddLecturerModal} />
           </form>
-        </Modal>s
+        </Modal>
 
         <Modal
             isOpen={isModalOpen}
@@ -304,6 +304,7 @@ export const CourseController = () => {
                 <th>Credits</th>
                 <th>Date</th>
                 <th>Course Compulsory</th>
+                <th>Add Lecturer</th>
                 <th>Edit</th>
                 <th>Delete</th>
               </tr>

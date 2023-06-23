@@ -1,317 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import axios from "axios";
-// import { Modal } from "reactstrap";
-// import { SaveAndCancelButton } from "../SaveAndCancelButton";
-
-// export const LecturerController = () => {
-//   const initialFormState = {
-//     surname: "",
-//     surnameError: "",
-//     firstName: "",
-//     firstnameError: "",
-//     secondName: "",
-//     age: "",
-//     ageError: "",
-//     nationality: "",
-//     email: "",
-//     emailError: "",
-//     gpa: "",
-//     lecturerId: "",
-//     originCountry: "",
-//   };
-//   const [lecturers, setLecturers] = useState([]);
-//   const [lecturer, setLecturer] = useState({});
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [isModalOpen, setIsModalOpen] = useState(false);
-//   const [showMessage, setShowMessage] = useState("");
-//   const [errorMessage, setErrorMessage] = useState("");
-
-//   useEffect(() => {
-//     fetchLecturers();
-
-//     if (errorMessage || showMessage) {
-//       const timeout = setTimeout(() => {
-//         setErrorMessage("");
-//         setShowMessage("");
-//       }, 3000);
-//       return () => {
-//         clearTimeout(timeout);
-//       };
-//     }
-//   }, [errorMessage, showMessage]);
-
-//   const openModal = () => {
-//     setIsModalOpen(true);
-//   };
-//   const closeModal = () => {
-//     setLecturer(initialFormState);
-//     setIsModalOpen(false);
-//   };
-//   const clearModel = () => {
-//     setLecturer(initialFormState);
-//   };
-
-//   const fetchLecturers = async () => {
-//     try {
-//       const response = await axios.get("/lecturer");
-//       setLecturers(response.data);
-//       setIsLoading(false);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   const addLecturer = async (newLecturer) => {
-//     try {
-//       const response = await axios.post("/lecturer", newLecturer);
-//       setLecturers([...lecturers, response.data]);
-//       setLecturer({});
-//       showNotice(
-//         "Great! You have added this lecturer to the list successfully!"
-//       );
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   const deleteLecturer = async (id) => {
-//     try {
-//       await axios.delete(`/lecturer/${id}`);
-//       setLecturers(lecturers.filter((lecturer) => lecturer.lecturerId !== id));
-//       showNotice("You have deleted this lecturer successfully!");
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   const updateLecturer = async (updatedLecturer) => {
-//     try {
-//       const response = await axios.put("/lecturer", updatedLecturer);
-//       setLecturers(
-//         lecturers.map((lecturer) =>
-//           lecturer.lecturerId === response.data.lecturerId
-//             ? response.data
-//             : lecturer
-//         )
-//       );
-//       setLecturer({});
-//       showNotice("Great! You have updated the list successfully!");
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     let error = "";
-
-//     if (name === "age") {
-//       const parsedValue = parseInt(value, 10);
-
-//       if (Number.isNaN(parsedValue) || parsedValue.toString() !== value) {
-//         error = "Age must be an integer!";
-//       }
-//       if (value < 0 || value > 120) {
-//         error = "Invalid Range of Age Input! ";
-//       }
-//     }
-//     if (name === "surname") {
-//       if (value.length > 0 && !/^[a-zA-Z]+$/.test(value)) {
-//         error = "Please note that only characters are allowed for last name!";
-//       }
-//     }
-//     if (name === "firstName") {
-//       if (!/^[a-zA-Z]+$/.test(value)) {
-//         error = "Please note that only characters are allowed for first name!";
-//       }
-//     }
-//     if (name === "email") {
-//       let trimValue = value.trim();
-//       if (!trimValue.endsWith(".edu")) {
-//         error = "Please input a valid academic email!";
-//       }
-//     }
-
-//     const updatedLecturer = {
-//       ...lecturer,
-//       [name]: value,
-//       ageError: name === "age" ? error : lecturer.ageError,
-//       surnameError: name === "surname" ? error : lecturer.surnameError,
-//       firstnameError: name === "firstName" ? error : lecturer.firstnameError,
-//       emailError: name === "email" ? error : lecturer.emailError,
-//     };
-
-//     setErrorMessage(error);
-//     setLecturer(updatedLecturer);
-//   };
-
-//   const showNotice = (msg) => {
-//     setShowMessage(msg);
-//     setTimeout(() => {
-//       setShowMessage("");
-//     }, 3000);
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     if (lecturer.lecturerId) {
-//       updateLecturer(lecturer);
-//     } else {
-//       addLecturer(lecturer);
-//     }
-//   };
-
-//   const editLecturer = (selectedLecturer) => {
-//     setLecturer(selectedLecturer);
-//     openModal();
-//   };
-
-//   return (
-//     <div>
-//       <h1>Lecturer List</h1>
-//       <button
-//         type="button"
-//         className="btn btn-secondary mb-3"
-//         onClick={openModal}
-//       >
-//         Add Lecturer
-//       </button>
-//       {showMessage && <p>{showMessage}</p>}
-
-//       <Modal
-//         isOpen={isModalOpen}
-//         onRequestClose={closeModal}
-//         contentLabel="Add Lecturer"
-//         className="modal-dialog modal-lg"
-//       >
-//         <h2>Add Lecturer</h2>
-//         {showMessage && <p>{showMessage}</p>}
-//         <form onSubmit={handleSubmit}>
-//           <div className="form-group mt-2">
-//             <label>Last Name:</label>
-//             <input
-//               type="text"
-//               name="surname"
-//               value={lecturer.surname || ""}
-//               onChange={handleInputChange}
-//               className="form-control"
-//             />
-//             {lecturer.surnameError && (
-//               <div className="error-message">{lecturer.surnameError}</div>
-//             )}
-//           </div>
-//           <div className="form-group mt-1">
-//             <label>First Name:</label>
-//             <input
-//               type="text"
-//               name="firstName"
-//               value={lecturer.firstName || ""}
-//               onChange={handleInputChange}
-//               className="form-control"
-//             />
-//             {lecturer.firstnameError && (
-//               <div className="error-message">{lecturer.firstnameError}</div>
-//             )}
-//           </div>
-//           <div className="form-group mt-2">
-//             <label>Second Name:</label>
-//             <input
-//               type="text"
-//               name="secondName"
-//               value={lecturer.secondName || ""}
-//               onChange={handleInputChange}
-//               className="form-control"
-//             />
-//           </div>
-//           <div className="form-group mt-1">
-//             <label>Age:</label>
-//             <input
-//               type="text"
-//               name="age"
-//               value={lecturer.age}
-//               onChange={handleInputChange}
-//               className="form-control"
-//             />
-//             {lecturer.ageError && (
-//               <div className="error-message">{lecturer.ageError}</div>
-//             )}
-//           </div>
-//           <div className="form-group mt-2">
-//             <label>Nationality:</label>
-//             <input
-//               type="text"
-//               name="nationality"
-//               value={lecturer.nationality || ""}
-//               onChange={handleInputChange}
-//               className="form-control"
-//             />
-//           </div>
-//           <div className="form-group mt-2">
-//             <label>Email:</label>
-//             <input
-//               type="text"
-//               name="email"
-//               value={lecturer.email || ""}
-//               onChange={handleInputChange}
-//               className="form-control"
-//             />
-//             {lecturer.emailError && (
-//               <div className="error-message">{lecturer.emailError}</div>
-//             )}
-//           </div>
-//           <SaveAndCancelButton
-//             closeModal={closeModal}
-//             clearModel={clearModel}
-//           />
-//         </form>
-//       </Modal>
-
-//       {isLoading ? (
-//         <p>Loading...</p>
-//       ) : (
-//         <table className="table">
-//           <thead>
-//             <tr>
-//               <th>Surname</th>
-//               <th>First Name</th>
-//               <th>Second Name</th>
-//               <th>Age</th>
-//               <th>Nationality</th>
-//               <th>Email</th>
-//               <th>Phone Number</th>
-//               <th>Role Designation</th>
-//               <th>Edit</th>
-//               <th>Delete</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {lecturers.map((lecturer) => (
-//               <tr key={lecturer.lecturerId}>
-//                 <td>{lecturer.surname}</td>
-//                 <td>{lecturer.firstName}</td>
-//                 <td>{lecturer.secondName}</td>
-//                 <td>{lecturer.age}</td>
-//                 <td>{lecturer.nationality}</td>
-//                 <td>{lecturer.email}</td>
-//                 <td>{lecturer.phonenumber}</td>
-//                 <td>{lecturer.role_designation}</td>
-//                 <td>
-//                   <button onClick={() => editLecturer(lecturer)}>Edit</button>
-//                 </td>
-//                 <td>
-//                   <button onClick={() => deleteLecturer(lecturer.lecturerId)}>
-//                     Delete
-//                   </button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       )}
-//     </div>
-//   );
-// };
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Modal } from "reactstrap";
@@ -324,7 +10,6 @@ export const LecturerController = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showMessage, setShowMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
 
   useEffect(() => {
     fetchStudents();
@@ -360,6 +45,7 @@ export const LecturerController = () => {
     studentId: "",
     college_name: "",
     password: "",
+    passwordError: "",
     role: { id: "" },
     collage: {
       id: "",
@@ -367,6 +53,15 @@ export const LecturerController = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!student.name || student.name.trim() === "") {
+      setShowMessage("Sorry, name cannot be empty!");
+      return;
+    }
+    if (!student.email || student.email.trim() === "") {
+      setShowMessage("Sorry, please enter your email!");
+      return;
+    }
+
     if (student.id) {
       updateStudent(student);
     } else {
@@ -391,11 +86,18 @@ export const LecturerController = () => {
       }
     }
 
+    if (name === "password") {
+      if (value.length < 8 || value.length > 20) {
+        error = "The valid length of password should be between 8 and 20.";
+      }
+    }
+
     const updatedStudent = {
       ...student,
       [name]: value,
       nameError: name === "name" ? error : student.nameError,
       emailError: name === "email" ? error : student.emailError,
+      passwordError: name === "password" ? error : student.passwordError,
     };
 
     setErrorMessage(error);
@@ -418,7 +120,9 @@ export const LecturerController = () => {
   };
 
   function deleteConfirmation(studentId) {
-    const result = window.confirm("Are you sure you want to delete this student?");
+    const result = window.confirm(
+      "Are you sure you want to delete this student?"
+    );
     if (result) {
       deleteStudent(studentId);
     }
@@ -528,6 +232,9 @@ export const LecturerController = () => {
               onChange={handleInputChange}
               className="form-control"
             />
+            {student.passwordError && (
+              <div className="error-message">{student.passwordError}</div>
+            )}
           </div>
           <div className="form-group mt-1">
             <label>College_Id</label>
@@ -587,7 +294,9 @@ export const LecturerController = () => {
                   <button onClick={() => editStudent(student)}>Edit</button>
                 </td>
                 <td>
-                  <button onClick={() => deleteConfirmation(student.id)}>Delete</button>
+                  <button onClick={() => deleteConfirmation(student.id)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
